@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>As 6 Doutrinas – O Desafio</title>
+<style>
+:root{--bg:#eaf4e6;--card:#fbfef8;--ink:#0f2e1f;--mut:#4d6b58;--line:#bcd8c2;--leaf:#2f7d4f;--deep:#17472f;--acc:#b6e04a;--bad:#c4482f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1f15;--card:#12301f;--ink:#e6f5e3;--mut:#9cc3a8;--line:#27553a;--leaf:#4aa872;--deep:#0b1f15}}
+:root[data-theme="dark"]{--bg:#0b1f15;--card:#12301f;--ink:#e6f5e3;--mut:#9cc3a8;--line:#27553a;--leaf:#4aa872;--deep:#0b1f15}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 'Trebuchet MS',Verdana,sans-serif;background-image:radial-gradient(circle at 100% 0,rgba(47,125,79,.18),transparent 45%),radial-gradient(circle at 0 100%,rgba(182,224,74,.15),transparent 40%);background-attachment:fixed;display:flex;flex-direction:column;min-height:100vh}
+main{max-width:720px;width:100%;margin:0 auto;padding:18px 16px 48px;flex:1}
+footer{text-align:center;padding:12px;font-size:13px;color:var(--mut);font-weight:600;letter-spacing:.3px}
+h1{font:700 32px/1.1 'Palatino Linotype',Palatino,Georgia,serif;margin:6px 0 6px;color:var(--ink)}
+.sub{color:var(--mut);margin:0 0 18px}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.steps span{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.steps span.on{background:var(--leaf)}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px}
+.f-group{margin-bottom:10px}
+.f{display:flex;align-items:center;gap:10px}
+.f b{width:30px;height:30px;border-radius:50%;background:var(--deep);color:var(--acc);display:grid;place-items:center;font-size:15px;flex:none}
+input{flex:1;min-width:0;font:600 17px 'Trebuchet MS',Verdana,sans-serif;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:11px 12px}
+input:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+input.ok{border-color:var(--leaf);background:rgba(47,125,79,.15)}
+input.no{border-color:var(--bad)}
+.correct-hint{font-size:13px;color:var(--bad);margin-top:3px;margin-left:40px;font-weight:600}
+button{font:700 16px 'Trebuchet MS',Verdana,sans-serif;cursor:pointer;border:0;border-radius:12px;padding:13px 18px;color:var(--ink);background:var(--line)}
+button.go{background:var(--leaf);color:#fff}
+.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.row button{flex:1;min-width:140px}
+.msg{min-height:26px;margin-top:12px;font-weight:600}
+.tray{display:flex;flex-wrap:wrap;gap:8px;padding:14px;margin-bottom:14px;background:var(--deep);border-radius:16px;min-height:70px}
+.chip{touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;background:var(--acc);color:#14301f;font-weight:700;font-size:15px;line-height:1.25;border-radius:10px;padding:8px 11px;max-width:100%}
+.chip.sel{outline:3px solid #fff;outline-offset:2px;background:#cbe85a;box-shadow:0 0 10px rgba(255,255,255,0.8)}
+.chip.drag{position:fixed;z-index:9;pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.35);transform:rotate(-2deg)}
+.chip.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.zones{display:grid;gap:10px}
+.zone{background:var(--card);border:2px dashed var(--line);border-radius:14px;padding:12px 14px;min-height:64px;transition:border-color .1s,background .1s;cursor:pointer}
+.zone.hot{border-color:var(--leaf);background:rgba(182,224,74,.25)}
+.zone h3{margin:0 0 6px;font:700 17px 'Palatino Linotype',Palatino,Georgia,serif}
+.zone h3 small{color:var(--mut);font:600 13px 'Trebuchet MS',sans-serif;margin-left:6px}
+.zone .chip{display:inline-block;margin:3px 4px 3px 0;background:var(--leaf);color:#fff;cursor:default;font-size:14px}
+.zone.full{border-style:solid;border-color:var(--leaf)}
+.stat{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
+.end{text-align:center}.end .n{font:700 72px 'Palatino Linotype',Georgia,serif;color:var(--leaf)}
+.hint{font-size:14px;color:var(--mut);margin-top:8px}
+.scroll-list{max-height:400px;overflow-y:auto;padding-right:4px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<footer>Feito por @pedrodelima_93</footer>
+<script>
+const D=[
+{t:"Doutrina de Deus",r:"1 a 5",k:["deus"]},
+{t:"Doutrina do Ser Humano",r:"6 e 7",k:["ser humano"]},
+{t:"Doutrina da Salvação",r:"8 a 11",k:["salvacao"]},
+{t:"Doutrina da Igreja",r:"12 a 18",k:["igreja"]},
+{t:"Doutrina da Vida Cristã",r:"19 a 23",k:["vida crista"]},
+{t:"Doutrina dos Últimos Eventos",r:"24 a 28",k:["ultimos eventos"]}];
+const N=["Escrituras Sagradas","Trindade","Pai","Filho","Espírito Santo","Criação","A natureza do homem","O grande conflito","Vida, morte e ressurreição de Cristo","Experiência da salvação","Crescimento em Cristo","A Igreja","O remanescente e sua missão","Unidade no corpo de Cristo","Batismo","Ceia do Senhor","Dons e ministérios espirituais","O dom de profecia","Lei de Deus","O Sábado","Mordomia","Conduta cristã","Casamento e família","O ministério de Cristo no santuário celestial","A segunda vinda de Cristo","Morte e ressurreição","O milênio e o fim do pecado","A nova Terra"];
+const B=N.map((name,i)=>({n:i+1,name,d:D.findIndex((x,k)=>{const [a,b]=[[1,5],[6,7],[8,11],[12,18],[19,23],[24,28]][k];return i+1>=a&&i+1<=b})}));
+const $=s=>document.querySelector(s),app=$('#app');
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim().replace(/^doutrina\s*/,'').replace(/^(de|da|do|dos|das)\s+/,'').replace(/^(a|o|os|as)\s+/,'');
+const normCrenca=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const steps=n=>`<div class="steps">${[0,1,2,3].map(i=>`<span class="${i<=n?'on':''}"></span>`).join('')}</div>`;
+
+function stage1(){
+ app.innerHTML=`<h1>Desafio das 6 Doutrinas</h1><p class="sub">Etapa 1: escreva o nome das 6 doutrinas, em qualquer ordem. Acertando as seis, o jogo é liberado.</p>${steps(0)}
+ <div class="panel">${[1,2,3,4,5,6].map(i=>`<div class="f"><b>${i}</b><input id="i${i}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Doutrina ..." aria-label="Doutrina ${i}"></div>`).join('')}
+ <div class="msg" id="m" aria-live="polite"></div>
+ <div class="row"><button id="hn">Dica</button><button class="go" id="ck">Conferir</button></div><div class="hint" id="hi"></div></div>`;
+ let hints=0;
+ $('#hn').onclick=()=>{hints++;const f=D.map(d=>d.t.replace('Doutrina ','').split(' ').map(w=>w[0]).join('.')).join('  ·  ');$('#hi').textContent=hints===1?'Todas começam com "Doutrina de/da/do..." e falam de '+D.length+' temas.':'Iniciais do que vem depois de "Doutrina": '+f}
+ const check=()=>{
+  const used=new Set();let hit=0;
+  for(let i=1;i<=6;i++){
+   const el=$('#i'+i),v=norm(el.value);let idx=D.findIndex((d,k)=>!used.has(k)&&d.k.includes(v));
+   if(idx>=0){used.add(idx);hit++;el.className='ok'}else el.className=el.value.trim()?'no':'';
+  }
+  if(hit===6){$('#m').style.color='var(--leaf)';$('#m').textContent='As 6 doutrinas estão certas! Liberando a próxima etapa...';setTimeout(()=>stage2(),1100)}
+  else{$('#m').style.color='var(--bad)';$('#m').textContent=`${hit} de 6 corretas. Corrija os campos em vermelho e confira de novo.`}
+ };
+ $('#ck').onclick=check;app.querySelectorAll('input').forEach(e=>e.onkeydown=ev=>{if(ev.key==='Enter')check()});
+}
+
+function stage2(){
+ const sessions=[B.slice()];
+ let s=0,errs=0,placed=0,sel=null;
+ const zonesHTML=()=>`<div class="zones">${D.map((d,k)=>`<div class="zone" data-z="${k}"><h3>${d.t}</h3><div class="ph" id="z${k}"></div></div>`).join('')}</div>`;
+ const memo=D.map(()=>[]);
+ const hearts=()=>'❤️'.repeat(Math.max(0,3-errs))+'🖤'.repeat(Math.min(3,errs));
+ 
+ const render=()=>{
+  app.innerHTML=`<h1>Organize as Crenças</h1><p class="sub">Toque na crença para selecioná-la e depois toque na doutrina correspondente (ou arraste).</p>${steps(1)}
+  <div class="stat"><span id="er" aria-label="Vidas">${hearts()}</span><span>Restam: <span id="le">${sessions[s].length-placed}</span></span><button id="shf" style="padding:6px 12px;font-size:14px">Embaralhar</button></div>
+  <div class="tray" id="tray"></div>${zonesHTML()}`;
+  
+  sessions[s].forEach(b=>{if(!memo.flat().includes(b))$('#tray').appendChild(chip(b))});
+  $('#shf').onclick=()=>{const t=$('#tray');sh([...t.children]).forEach(c=>t.appendChild(c))};
+  memo.forEach((arr,k)=>arr.forEach(b=>addTo(k,b)));
+  
+  document.querySelectorAll('.zone').forEach(zone=>{
+   zone.onclick=()=>{
+    if(sel){
+     const k=+zone.dataset.z;
+     drop(sel.c, sel.b, k);
+    }
+   };
+  });
+ };
+
+ const chip=b=>{
+  const c=document.createElement('div');
+  c.className='chip';
+  c.textContent=b.name;
+  c.dataset.n=b.n;
+  c.tabIndex=0;
+  bind(c,b);
+  return c;
+ };
+
+ const addTo=(k,b)=>{
+  const c=document.createElement('div');
+  c.className='chip';
+  c.textContent=b.name;
+  $('#z'+k).appendChild(c);
+  $('.zone[data-z="'+k+'"]').classList.add('full');
+ };
+
+ const drop=(c,b,k)=>{
+  if(b.d===k){
+   memo[k].push(b);
+   addTo(k,b);
+   c.remove();
+   sel=null;
+   placed++;
+   const left=$('#tray').children.length;
+   $('#le').textContent=left;
+   if(!left)setTimeout(stage3,700);
+  }else{
+   errs++;
+   $('#er').innerHTML=hearts();
+   c.classList.remove('sel');
+   sel=null;
+   c.classList.add('shake');
+   setTimeout(()=>c.classList.remove('shake'),400);
+   if(errs>=3)setTimeout(over,450);
+  }
+ };
+
+ const zoneAt=(x,y)=>{const e=document.elementFromPoint(x,y);return e&&e.closest('.zone')};
+
+ const bind=(c,b)=>{
+  c.onpointerdown=e=>{
+   e.preventDefault();
+   const sx=e.clientX,sy=e.clientY,r=c.getBoundingClientRect();
+   let moved=false,ph=null;
+
+   const mv=ev=>{
+    if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>8){
+     moved=true;
+     ph=document.createElement('div');
+     ph.style.cssText=`width:${r.width}px;height:${r.height}px`;
+     c.before(ph);
+     c.classList.add('drag');
+     c.style.width=r.width+'px';
+    }
+    if(moved){
+     c.style.left=ev.clientX-r.width/2+'px';
+     c.style.top=ev.clientY-r.height/2+'px';
+     document.querySelectorAll('.zone').forEach(z=>z.classList.remove('hot'));
+     const z=zoneAt(ev.clientX,ev.clientY);
+     if(z)z.classList.add('hot');
+    }
+   };
+
+   const up=ev=>{
+    removeEventListener('pointermove',mv);
+    removeEventListener('pointerup',up);
+    removeEventListener('pointercancel',up);
+    document.querySelectorAll('.zone').forEach(z=>z.classList.remove('hot'));
+    if(moved){
+     const z=zoneAt(ev.clientX,ev.clientY);
+     c.classList.remove('drag');
+     c.style.cssText='';
+     ph.replaceWith(c);
+     if(z)drop(c,b,+z.dataset.z);
+    }else{
+     const was=c.classList.contains('sel');
+     document.querySelectorAll('.chip.sel').forEach(x=>x.classList.remove('sel'));
+     if(!was){
+      c.classList.add('sel');
+      sel={c,b};
+     }else{
+      sel=null;
+     }
+    }
+   };
+
+   addEventListener('pointermove',mv);
+   addEventListener('pointerup',up);
+   addEventListener('pointercancel',up);
+  };
+
+  c.onkeydown=e=>{
+   if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();
+    document.querySelectorAll('.chip.sel').forEach(x=>x.classList.remove('sel'));
+    c.classList.add('sel');
+    sel={c,b};
+   }
+  };
+ };
+
+ render();
+
+ const over=()=>{
+  app.innerHTML=`<div class="panel end"><h1>Fim das vidas</h1>${steps(1)}<div class="n">🖤🖤🖤</div><p class="sub">Você colocou ${placed} de 28 crenças. Tente de novo!</p><div class="row"><button id="r1">Voltar às doutrinas</button><button class="go" id="r2">Tentar de novo</button></div></div>`;
+  $('#r1').onclick=stage1;
+  $('#r2').onclick=stage2;
+ };
+}
+
+function stage3(){
+ app.innerHTML=`<h1>Escreva as 28 Crenças</h1><p class="sub">Etapa final: escreva o nome de cada uma das 28 crenças em ordem numérica correta (1 a 28).</p>${steps(2)}
+ <div class="panel"><div class="scroll-list">
+ ${N.map((_,i)=>`<div class="f-group"><div class="f"><b>${i+1}</b><input id="c${i+1}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Crença ${i+1} ..." aria-label="Crença ${i+1}"></div><div class="correct-hint" id="h${i+1}"></div></div>`).join('')}
+ </div>
+ <div class="msg" id="m3" aria-live="polite"></div>
+ <div class="row">
+   <button id="back2">Voltar etapa anterior</button>
+   <button id="retry3">Refazer esta etapa</button>
+   <button class="go" id="ck3">Conferir Crenças</button>
+ </div></div>`;
+ 
+ const check3=()=>{
+  let hit=0;
+  for(let i=0;i<28;i++){
+   const el=$('#c'+(i+1));
+   const hintEl=$('#h'+(i+1));
+   const userVal=normCrenca(el.value);
+   const correctVal=normCrenca(N[i]);
+   
+   hintEl.textContent='';
+   if(userVal===correctVal){
+    el.className='ok';
+    hit++;
+   } else {
+    el.className='no';
+    hintEl.textContent=`Correto: ${N[i]}`;
+   }
+  }
+  if(hit===28){
+   $('#m3').style.color='var(--leaf)';
+   $('#m3').textContent='Parabéns! Todas as 28 crenças foram escritas na ordem correta!';
+   setTimeout(()=>finish(0),1200);
+  }else{
+   $('#m3').style.color='var(--bad)';
+   $('#m3').textContent=`Você acertou ${hit} de 28 crenças. Veja a resposta correta abaixo dos itens incorretos.`;
+  }
+ };
+
+ $('#ck3').onclick=check3;
+ $('#back2').onclick=stage2;
+ $('#retry3').onclick=stage3;
+
+ app.querySelectorAll('input').forEach((e,idx,arr)=>{
+  e.onkeydown=ev=>{
+   if(ev.key==='Enter'){
+    if(idx<arr.length-1) arr[idx+1].focus();
+    else check3();
+   }
+  };
+ });
+}
+
+window.finish=(errs=0)=>{
+  const score=100-errs*10;
+  let best=0;try{best=+localStorage.getItem('doutrinas-best')||0;if(score>best){localStorage.setItem('doutrinas-best',score);best=score}}catch(e){}
+  app.innerHTML=`<div class="panel end"><h1>Você completou tudo!</h1>${steps(3)}<div class="n">${score}</div><p class="sub">${errs===0?'Perfeito, desafio concluído com excelência!':'Você terminou com '+(3-errs)+' vida(s).'} Melhor pontuação: ${best}</p><div class="row"><button id="r1">Recomeçar do zero</button><button class="go" id="r2">Jogar novamente</button></div></div>`;
+  $('#r1').onclick=stage1;
+  $('#r2').onclick=stage2;
+};
+
+stage1();
+</script>
+</body>
+</html>
